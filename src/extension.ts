@@ -1121,7 +1121,7 @@ export class Ext extends Ecs.System<ExtEvent> {
 
             const move_to_neighbor = (neighbor: Meta.Workspace) => {
                 const monitor = win.meta.get_monitor();
-                if (this.auto_tiler && !this.contains_tag(win.entity, Tags.Floating)) {
+                if (this.auto_tiler && win.is_tilable(this)) {
                     win.ignore_detach = true;
                     this.auto_tiler.detach_window(this, win.entity);
                     this.auto_tiler.attach_to_workspace(this, win, [monitor, neighbor.index()]);
@@ -2279,7 +2279,7 @@ export class Ext extends Ecs.System<ExtEvent> {
         return entity;
     }
 
-    /// Returns the window(s) that the mouse pointer is currently hovering above.
+    /// Returns the tilable window(s) that the mouse pointer is currently hovering above.
     * windows_at_pointer(
         cursor: Rectangle,
         monitor: number,
@@ -2287,7 +2287,7 @@ export class Ext extends Ecs.System<ExtEvent> {
     ): IterableIterator<Window.ShellWindow> {
         for (const entity of this.monitors.find((m) => m[0] == monitor && m[1] == workspace)) {
             let window = this.windows.with(entity, (window) => {
-                return window.rect().contains(cursor) ? window : null;
+                return window.is_tilable(this) && window.rect().contains(cursor) ? window : null;
             });
 
             if (window) yield window;
